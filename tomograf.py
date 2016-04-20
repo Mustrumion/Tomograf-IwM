@@ -171,10 +171,11 @@ def main():
 
     points = np.zeros((npoints, 3)) #x, y, kąt stycznej do osi X+
 
+    step = 2 * math.pi / npoints
     for point in xrange(npoints):
-        points[point, 0] = cirx + radius * math.cos(2 * math.pi / npoints * point)
-        points[point, 1] = ciry + radius * math.sin(2 * math.pi / npoints * point)
-        points[point, 2] = 2 * math.pi / npoints * point
+        points[point, 0] = cirx + radius * math.cos(step * point)
+        points[point, 1] = ciry + radius * math.sin(step * point)
+        points[point, 2] = step * point
 
     #print points
 
@@ -182,16 +183,17 @@ def main():
     ax1.plot(points[0, 1], points[0, 0], 'bs')
     ax1.plot(points[1, 1], points[1, 0], 'gs')
 
-    pointnumber = 0
+    pointNumber = 0
+    angleStep = (math.pi - 2 * deadangle) / nrays
     for smth in points:
         for ray in xrange(nrays):
-            angle = smth[2] + deadangle + (math.pi - 2 * deadangle) / nrays*ray
+            angle = smth[2] + deadangle + angleStep * ray
             angle = angle % (2 * math.pi)
             #if ray==2: print angle
-            output[pointnumber, ray] = recCountPixelSum(smth[1], smth[0], angle, newimage)
+            output[pointNumber, ray] = recCountPixelSum(smth[1], smth[0], angle, newimage)
             #print deadangle + (math.pi - 2 * deadangle)/nrays*ray
 
-        pointnumber += 1
+        pointNumber += 1
 
     #print points
 
