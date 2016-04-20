@@ -1,13 +1,8 @@
 # -*- coding: utf-8 -*-
 import numpy as np
-import scipy
-import matplotlib.gridspec as gridspec
-import matplotlib.cm as cm
 import math
-import numpy as np
-from skimage import data,filters,  measure, morphology, draw
-from skimage.color import  rgb2gray
-from skimage.morphology import square
+from skimage import data
+from skimage.color import rgb2gray
 from matplotlib import pyplot as plt
 import sys
 
