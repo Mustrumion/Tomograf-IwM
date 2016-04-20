@@ -134,7 +134,7 @@ def main():
     else:
         filename = "images/image.bmp"
 
-    output = np.zeros((npoints,nrays))
+    output = np.zeros((npoints, nrays))
 
     image = rgb2gray(data.imread(filename))
     width = len(image[0])
@@ -143,12 +143,12 @@ def main():
 
     newwidth = newheight = 2*radius + 2  #ustalenie nowej wielkości obrazu
     if not width % 2 == 0: #sprawdzenie parzystości pikseli (aby środek obrazu pozostał na środku)
-        newwidth+=1
+        newwidth += 1
     if not height % 2 == 0:
-        newheight+=1
+        newheight += 1
 
     #tworzenie nowego obrazu i kopiowanie starego do środka
-    newimage = np.zeros((newheight,newwidth))
+    newimage = np.zeros((newheight, newwidth))
     #print width, height
     #print newwidth, newheight
     xstart = (newwidth-width) / 2
@@ -156,30 +156,31 @@ def main():
     ystart = (newheight-height) / 2
     yend = ystart + height
     #print xstart,xend,ystart,yend
-    newimage[ystart:yend,xstart:xend]=image
+    newimage[ystart:yend, xstart:xend] = image
 
     f, (ax1, ax2) = plt.subplots(1, 2)
 
-    ax1.imshow(newimage,cmap='Greys_r',interpolation='none')
+    ax1.imshow(newimage, cmap='Greys_r', interpolation='none')
 
-    cirx = ((newheight-1)/2) #środek okręgu
-    ciry = ((newwidth-1)/2)
-    circle1=plt.Circle((ciry,cirx),radius,color='r',fill=False)  #wrzucenie okregu do plota
+    # środek okręgu
+    cirx = (newheight-1) / 2
+    ciry = (newwidth-1) / 2
+    #wrzucenie okregu do plota
+    circle1=plt.Circle((ciry, cirx), radius,color='r', fill=False)
     ax1.add_artist(circle1)
 
-
-    points = np.zeros((npoints,3)) #x,y,kąt stycznej do osi X+
+    points = np.zeros((npoints, 3)) #x, y, kąt stycznej do osi X+
 
     for point in xrange(npoints):
-        points[point,0] = cirx+radius * math.cos(2 * math.pi / npoints * point)
-        points[point,1] = ciry+radius * math.sin(2 * math.pi / npoints * point)
-        points[point,2] = 2 * math.pi / npoints * point
+        points[point, 0] = cirx + radius * math.cos(2 * math.pi / npoints * point)
+        points[point, 1] = ciry + radius * math.sin(2 * math.pi / npoints * point)
+        points[point, 2] = 2 * math.pi / npoints * point
 
     #print points
 
-    ax1.plot(points[:,1], points[:,0], 'ro')
-    ax1.plot(points[0,1], points[0,0], 'bs')
-    ax1.plot(points[1,1], points[1,0], 'gs')
+    ax1.plot(points[:, 1], points[:, 0], 'ro')
+    ax1.plot(points[0, 1], points[0, 0], 'bs')
+    ax1.plot(points[1, 1], points[1, 0], 'gs')
 
     pointnumber = 0
     for smth in points:
@@ -187,10 +188,10 @@ def main():
             angle = smth[2] + deadangle + (math.pi - 2 * deadangle) / nrays*ray
             angle = angle % (2 * math.pi)
             #if ray==2: print angle
-            output[pointnumber,ray] = recCountPixelSum(smth[1],smth[0],angle,newimage)
+            output[pointnumber, ray] = recCountPixelSum(smth[1], smth[0], angle, newimage)
             #print deadangle + (math.pi - 2 * deadangle)/nrays*ray
 
-        pointnumber+=1
+        pointnumber += 1
 
     #print points
 
@@ -198,9 +199,9 @@ def main():
     if all(maxp > 0):
         for line in output:
             for pixel in line:
-                pixel/=maxp
+                pixel /= maxp
 
-    ax2.imshow(output,cmap='Greys_r',interpolation='none')
+    ax2.imshow(output, cmap='Greys_r', interpolation='none')
 
     plt.show()
 
