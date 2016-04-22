@@ -6,6 +6,8 @@ from skimage.color import rgb2gray
 from matplotlib import pyplot as plt
 import sys
 
+import utils
+
 '''this function crawls (yeah, crawls, not walks) along the line checking which
 side of pixel is crossed to determine next pixel, adding their colours on the way'''
 
@@ -163,45 +165,58 @@ def main():
     ax1.imshow(newimage, cmap='Greys_r', interpolation='none')
 
     # środek okręgu
-    cirx = (newheight-1) / 2
-    ciry = (newwidth-1) / 2
+    cirx = (newwidth-1) / 2
+    ciry = (newheight-1) / 2
     #wrzucenie okregu do plota
-    circle1=plt.Circle((ciry, cirx), radius,color='r', fill=False)
+    circle1=plt.Circle((cirx, ciry), radius,color='r', fill=False)
     ax1.add_artist(circle1)
 
     points = np.zeros((npoints, 3)) #x, y, kąt stycznej do osi X+
 
     step = 2 * math.pi / npoints
     for point in xrange(npoints):
-        points[point, 0] = cirx + radius * math.cos(step * point)
-        points[point, 1] = ciry + radius * math.sin(step * point)
+        points[point, 0] = cirx + radius * math.sin(step * point)
+        points[point, 1] = ciry + radius * math.cos(step * point)
         points[point, 2] = step * point
 
-    #print points
+    # print points
 
     ax1.plot(points[:, 1], points[:, 0], 'ro')
     ax1.plot(points[0, 1], points[0, 0], 'bs')
     ax1.plot(points[1, 1], points[1, 0], 'gs')
 
-    pointNumber = 0
-    angleStep = (math.pi - 2 * deadangle) / nrays
-    for smth in points:
+    # angleStep = (math.pi - 2 * deadangle) / nrays
+    # for pointNumber, smth in enumerate(points):
+    #     for ray in xrange(nrays):
+    #         angle = smth[2] + deadangle + angleStep * ray
+    #         angle = angle % (2 * math.pi)
+    #         #if ray==2: print angle
+    #         output[pointNumber, ray] = recCountPixelSum(smth[0], smth[1], angle, newimage)
+    #         #print deadangle + (math.pi - 2 * deadangle)/nrays*ray
+
+    # Bresenham TODO
+    for pointNumber, smth in enumerate(points):
+        # angle = smth[2] + math.pi + (deadangle/2)
         for ray in xrange(nrays):
-            angle = smth[2] + deadangle + angleStep * ray
+            # angle = smth[2] + math.pi + (deadangle/2) - deadangle * ray/nrays
+            angle = smth[2] + deadangle + (math.pi - 2 * deadangle) * ray/nrays
             angle = angle % (2 * math.pi)
-            #if ray==2: print angle
-            output[pointNumber, ray] = recCountPixelSum(smth[1], smth[0], angle, newimage)
-            #print deadangle + (math.pi - 2 * deadangle)/nrays*ray
-
-        pointNumber += 1
-
-    #print points
+            # print math.sin(angle)
+            x2 = cirx + radius * math.sin(angle)
+            y2 = ciry + radius * math.cos(angle)
+            print smth[0], smth[1], x2, y2
+            pixels = utils.bresenham(int(smth[0]), int(smth[1]), int(x2), int(y2))
+            output[pointNumber, ray] = sum([newimage[i] for i in pixels])
 
     maxp = output.max(axis=1)
+    i = 0
     if all(maxp > 0):
-        for line in output:
-            for pixel in line:
-                pixel /= maxp
+        for pixel in np.nditer(output, op_flags=['readwrite']):
+            pixel[...] = pixel / maxp[i]
+            i = (i+1) % 50
+        # for line in output:
+        #     for pixel in line:
+        #         pixel /= maxp
 
     ax2.imshow(output, cmap='Greys_r', interpolation='none')
 
