@@ -151,13 +151,10 @@ def main():
 
     #tworzenie nowego obrazu i kopiowanie starego do środka
     newimage = np.zeros((newheight, newwidth))
-    #print width, height
-    #print newwidth, newheight
     xstart = (newwidth-width) / 2
     xend = xstart + width
     ystart = (newheight-height) / 2
     yend = ystart + height
-    #print xstart,xend,ystart,yend
     newimage[ystart:yend, xstart:xend] = image
 
     f, (ax1, ax2) = plt.subplots(1, 2)
@@ -167,19 +164,17 @@ def main():
     # środek okręgu
     cirx = (newwidth-1) / 2
     ciry = (newheight-1) / 2
-    #wrzucenie okregu do plota
-    circle1=plt.Circle((cirx, ciry), radius,color='r', fill=False)
+    # wrzucenie okregu do plota
+    circle1 = plt.Circle((cirx, ciry), radius, color='r', fill=False)
     ax1.add_artist(circle1)
 
     points = np.zeros((npoints, 3)) #x, y, kąt stycznej do osi X+
 
     step = 2 * math.pi / npoints
     for point in xrange(npoints):
-        points[point, 0] = cirx + radius * math.sin(step * point)
-        points[point, 1] = ciry + radius * math.cos(step * point)
+        points[point, 0] = cirx + radius * math.cos(step * point)
+        points[point, 1] = ciry + radius * math.sin(step * point)
         points[point, 2] = step * point
-
-    # print points
 
     ax1.plot(points[:, 1], points[:, 0], 'ro')
     ax1.plot(points[0, 1], points[0, 0], 'bs')
@@ -194,17 +189,13 @@ def main():
     #         output[pointNumber, ray] = recCountPixelSum(smth[0], smth[1], angle, newimage)
     #         #print deadangle + (math.pi - 2 * deadangle)/nrays*ray
 
-    # Bresenham TODO
+    # Bresenham
     for pointNumber, smth in enumerate(points):
-        # angle = smth[2] + math.pi + (deadangle/2)
         for ray in xrange(nrays):
-            # angle = smth[2] + math.pi + (deadangle/2) - deadangle * ray/nrays
-            angle = smth[2] + deadangle + (math.pi - 2 * deadangle) * ray/nrays
-            angle = angle % (2 * math.pi)
-            # print math.sin(angle)
-            x2 = cirx + radius * math.sin(angle)
-            y2 = ciry + radius * math.cos(angle)
-            print smth[0], smth[1], x2, y2
+            angle = smth[2] + deadangle + (math.pi - 2*deadangle) * ray/nrays
+            angle = math.radians(angle % (2 * math.pi))
+            x2 = cirx + radius * math.cos(angle)
+            y2 = ciry + radius * math.sin(angle)
             pixels = utils.bresenham(int(smth[0]), int(smth[1]), int(x2), int(y2))
             output[pointNumber, ray] = sum([newimage[i] for i in pixels])
 
@@ -214,10 +205,9 @@ def main():
         for pixel in np.nditer(output, op_flags=['readwrite']):
             pixel[...] = pixel / maxp[i]
             i = (i+1) % 50
-        # for line in output:
-        #     for pixel in line:
-        #         pixel /= maxp
 
+    # coby było w pionie
+    # output = np.transpose(output)
     ax2.imshow(output, cmap='Greys_r', interpolation='none')
 
     plt.show()
