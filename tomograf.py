@@ -72,16 +72,15 @@ def main():
     #         #print deadangle + (math.pi - 2 * deadangle)/nrays*ray
 
     # Bresenham
-    for pointNumber, smth in enumerate(points):
+    for pointNumber, pointerino in enumerate(points):
         for ray in xrange(nrays):
-            angle = smth[2] + math.pi + deadangle - 2*deadangle * float(ray)/nrays
             # angle = smth[2] + deadangle + (math.pi - 2*deadangle) * float(ray)/nrays
             # angle = angle % (2 * math.pi)
             x2 = cirx + radius * math.cos(angle)
             y2 = ciry + radius * math.sin(angle)
             if pointNumber == 0:
-                print smth[0], smth[1], x2, y2
-            pixels = utils.bresenham(int(round(smth[0])), int(round(smth[1])), int(round(x2)), int(round(y2)))
+                print pointerino[0], pointerino[1], x2, y2
+            pixels = utils.bresenham(int(round(pointerino[0])), int(round(pointerino[1])), int(round(x2)), int(round(y2)))
             output[pointNumber, ray] = sum([newimage[i] for i in pixels])
 
     maxp = output.max(axis=1)
