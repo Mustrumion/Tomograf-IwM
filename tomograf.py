@@ -10,7 +10,7 @@ import utils
 
 
 def main():
-    deadangle = 0.01 * math.pi
+    deadangle = 0.4 * math.pi
     npoints = 50
     nrays = 50
     if len(sys.argv) > 1:
@@ -74,7 +74,7 @@ def main():
     # Bresenham
     for pointNumber, pointerino in enumerate(points):
         for ray in xrange(nrays):
-            angle = pointerino[2] + math.pi/2 + deadangle + ((math.pi - 2*deadangle) * float(ray)/nrays)
+            angle = pointerino[2] + deadangle + ((2*math.pi - 2*deadangle) * float(ray)/nrays)
             # angle = smth[2] + deadangle + (math.pi - 2*deadangle) * float(ray)/nrays
             # angle = angle % (2 * math.pi)
             x2 = cirx + radius * math.cos(angle)
