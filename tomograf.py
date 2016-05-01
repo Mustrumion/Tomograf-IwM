@@ -82,7 +82,14 @@ def main():
             if pointNumber == 0:
                 print pointerino[0], pointerino[1], x2, y2
             pixels = utils.bresenham(int(round(pointerino[0])), int(round(pointerino[1])), int(round(x2)), int(round(y2)))
-            output[pointNumber, ray] = sum([newimage[i] for i in pixels])
+            
+            weight=0.0
+            if math.sin(angle%(math.pi/2))>math.cos(angle%(math.pi/2)):
+                weight=1/math.sin(angle%(math.pi/2))
+            else:
+                weight=1/math.cos(angle%(math.pi/2))
+            
+            output[pointNumber, ray] = sum([newimage[i] for i in pixels])*weight
 
     maxp = output.max(axis=1)
     i = 0
