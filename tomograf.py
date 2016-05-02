@@ -39,8 +39,7 @@ def main():
     yend = ystart + height
     newimage[ystart:yend, xstart:xend] = image
 
-    f, ((ax1, ax2), (ax3, ax4)) = plt.subplots(2, 2)
-
+    ax1 = plt.subplot(2, 1, 1)
     ax1.imshow(newimage, cmap='Greys_r', interpolation='none')
 
     # środek okręgu
@@ -96,6 +95,7 @@ def main():
             pixel[...] = pixel / maxp[i]
             i = (i+1) % nrays
 
+    ax3 = plt.subplot(2, 2, 3)
     ax3.imshow(output, cmap='Greys_r', interpolation='none')
 
     # Rekonstrukcja
@@ -116,6 +116,7 @@ def main():
 
                 reconstructedImg[rows, cols] += sample
 
+    ax4 = plt.subplot(2, 2, 4)
     ax4.imshow(reconstructedImg, cmap='Greys_r', interpolation='none')
 
     plt.show()
