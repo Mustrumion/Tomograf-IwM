@@ -39,7 +39,7 @@ def main():
     yend = ystart + height
     newimage[ystart:yend, xstart:xend] = image
 
-    f, (ax1, ax2) = plt.subplots(1, 2)
+    f, ((ax1, ax2), (ax3, ax4)) = plt.subplots(2, 2)
 
     ax1.imshow(newimage, cmap='Greys_r', interpolation='none')
 
@@ -96,9 +96,27 @@ def main():
             pixel[...] = pixel / maxp[i]
             i = (i+1) % nrays
 
-    # coby było w pionie
-    # output = np.transpose(output)
-    ax2.imshow(output, cmap='Greys_r', interpolation='none')
+    ax3.imshow(output, cmap='Greys_r', interpolation='none')
+
+    # Rekonstrukcja
+    reconstructedImg = np.zeros((newheight, newwidth))
+
+    for pointNumber, pointerino in enumerate(points):
+        for ray in xrange(nrays):
+            sample = output[pointNumber, ray]
+            if sample > 0:
+                angle = pointerino[2] + deadangle + ((2*math.pi - 2*deadangle) * float(ray)/nrays)
+                x2 = cirx + radius * math.cos(angle)
+                y2 = ciry + radius * math.sin(angle)
+                pixels = utils.bresenham(int(round(pointerino[0])), int(round(pointerino[1])), int(round(x2)), int(round(y2)))
+                rows, cols = [], []
+                for p in pixels:
+                    rows.append(p[0])
+                    cols.append(p[1])
+
+                reconstructedImg[rows, cols] += sample
+
+    ax4.imshow(reconstructedImg, cmap='Greys_r', interpolation='none')
 
     plt.show()
 
