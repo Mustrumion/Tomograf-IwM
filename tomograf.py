@@ -12,9 +12,9 @@ import utils
 class Tomograph:
     def __init__(self):
         self.deadangle = 0.4 * math.pi
-        self.npoints = 50
+        self.npoints = 500
         self.points = np.zeros((self.npoints, 3)) #x, y, kąt stycznej do osi X+
-        self.nrays = 50
+        self.nrays = 100
         if len(sys.argv) > 1:
             self.filename = "images/" + sys.argv[1]
         else:
