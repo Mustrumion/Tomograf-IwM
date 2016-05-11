@@ -71,13 +71,8 @@ class Tomograph:
                         cols.append(p[1])
 
                     self.reconstructedImage[rows, cols] += sample
-
-        maxp = self.reconstructedImage.max(axis=1)
-        i = 0
-        if all(maxp > 0):
-            for pixel in np.nditer(self.reconstructedImage, op_flags=['readwrite']):
-                pixel[...] = pixel / maxp[i]
-                i = (i+1) % len(self.reconstructedImage)
+                    
+        self.reconstructedImage = self.reconstructedImage / np.amax(self.reconstructedImage)
 
 
     def simulate(self):
