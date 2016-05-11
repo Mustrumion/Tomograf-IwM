@@ -4,7 +4,6 @@ import math
 from skimage import data
 from skimage.color import rgb2gray
 from matplotlib import pyplot as plt
-# import sys
 import argparse
 
 import utils
@@ -14,9 +13,9 @@ class Tomograph:
     def __init__(self):
         # parse cmd line args
         parser = argparse.ArgumentParser()
-        parser.add_argument('--points', default=100, type=int)
-        parser.add_argument('--rays', default=100, type=int)
-        parser.add_argument('--image', default='image.bmp')
+        parser.add_argument('--points', '-p', default=100, type=int)
+        parser.add_argument('--rays', '-r', default=100, type=int)
+        parser.add_argument('--image', '-i', default='image.bmp')
         args = parser.parse_args()
 
         self.deadangle = 0.4 * math.pi
