@@ -4,21 +4,26 @@ import math
 from skimage import data
 from skimage.color import rgb2gray
 from matplotlib import pyplot as plt
-import sys
+# import sys
+import argparse
 
 import utils
 
 
 class Tomograph:
     def __init__(self):
+        # parse cmd line args
+        parser = argparse.ArgumentParser()
+        parser.add_argument('--points', default=100, type=int)
+        parser.add_argument('--rays', default=100, type=int)
+        parser.add_argument('--image', default='image.bmp')
+        args = parser.parse_args()
+
         self.deadangle = 0.4 * math.pi
-        self.npoints = 500
+        self.npoints = args.points
         self.points = np.zeros((self.npoints, 3)) #x, y, kąt stycznej do osi X+
-        self.nrays = 100
-        if len(sys.argv) > 1:
-            self.filename = "images/" + sys.argv[1]
-        else:
-            self.filename = "images/image.bmp"
+        self.nrays = args.rays
+        self.filename = 'images/' + args.image
         self.cirx, self.ciry = 0, 0
         self.radius = 0
         self.extendedImage = []
@@ -67,14 +72,14 @@ class Tomograph:
                         cols.append(p[1])
 
                     self.reconstructedImage[rows, cols] += sample
-        
+
         maxp = self.reconstructedImage.max(axis=1)
         i = 0
         if all(maxp > 0):
             for pixel in np.nditer(self.reconstructedImage, op_flags=['readwrite']):
                 pixel[...] = pixel / maxp[i]
                 i = (i+1) % len(self.reconstructedImage)
-        
+
 
     def simulate(self):
         image = rgb2gray(data.imread(self.filename))
@@ -127,18 +132,17 @@ class Tomograph:
         ax4.imshow(self.reconstructedImage, cmap='Greys_r', interpolation='none')
 
         plt.show()
-        
+
         self.countAccuracy()
 
     def countAccuracy(self):
         for lineOriginal, lineReconstructed in zip(self.extendedImage, self.reconstructedImage):
             for pixelOriginal, pixelReconstructed in zip(lineOriginal, lineReconstructed):
                 self.accuracy += (pixelOriginal - pixelReconstructed) **2
-                if pixelReconstructed>1: print pixelReconstructed
-                
-        self.accuracy/=len(self.extendedImage)*len(self.extendedImage[0])
+
+        self.accuracy /= len(self.extendedImage)*len(self.extendedImage[0])
         print(self.accuracy)
-        
+
 
 if __name__ == '__main__':
     tomograph = Tomograph()
