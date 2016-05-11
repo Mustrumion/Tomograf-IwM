@@ -24,6 +24,7 @@ class Tomograph:
         self.extendedImage = []
         self.spectrum = np.zeros((self.npoints, self.nrays))
         self.reconstructedImage = []
+        self.accuracy = 0.0
 
     def getLinePixels(self, angle, pointerino, ray):
         x2 = self.cirx + self.radius * math.cos(angle)
@@ -66,6 +67,14 @@ class Tomograph:
                         cols.append(p[1])
 
                     self.reconstructedImage[rows, cols] += sample
+        
+        maxp = self.reconstructedImage.max(axis=1)
+        i = 0
+        if all(maxp > 0):
+            for pixel in np.nditer(self.reconstructedImage, op_flags=['readwrite']):
+                pixel[...] = pixel / maxp[i]
+                i = (i+1) % len(self.reconstructedImage)
+        
 
     def simulate(self):
         image = rgb2gray(data.imread(self.filename))
@@ -118,7 +127,18 @@ class Tomograph:
         ax4.imshow(self.reconstructedImage, cmap='Greys_r', interpolation='none')
 
         plt.show()
+        
+        self.countAccuracy()
 
+    def countAccuracy(self):
+        for lineOriginal, lineReconstructed in zip(self.extendedImage, self.reconstructedImage):
+            for pixelOriginal, pixelReconstructed in zip(lineOriginal, lineReconstructed):
+                self.accuracy += (pixelOriginal - pixelReconstructed) **2
+                if pixelReconstructed>1: print pixelReconstructed
+                
+        self.accuracy/=len(self.extendedImage)*len(self.extendedImage[0])
+        print(self.accuracy)
+        
 
 if __name__ == '__main__':
     tomograph = Tomograph()
