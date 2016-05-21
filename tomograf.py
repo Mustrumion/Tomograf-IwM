@@ -71,7 +71,7 @@ class Tomograph:
                         cols.append(p[1])
 
                     self.reconstructedImage[rows, cols] += sample
-                    
+
         self.reconstructedImage = self.reconstructedImage / np.amax(self.reconstructedImage)
 
 
@@ -95,7 +95,7 @@ class Tomograph:
         yend = ystart + height
         self.extendedImage[ystart:yend, xstart:xend] = image
 
-        ax1 = plt.subplot(2, 1, 1)
+        ax1 = plt.subplot(2, 2, 1)
         ax1.imshow(self.extendedImage, cmap='Greys_r', interpolation='none')
 
         # środek okręgu
@@ -117,17 +117,22 @@ class Tomograph:
 
         # Skanowanie
         self.scan()
-        ax3 = plt.subplot(2, 2, 3)
-        ax3.imshow(self.spectrum, cmap='Greys_r', interpolation='none')
+        ax2 = plt.subplot(2, 2, 2)
+        ax2.imshow(self.spectrum, cmap='Greys_r', interpolation='none')
 
         # Rekonstrukcja
         self.reconstruct()
+        ax3 = plt.subplot(2, 2, 3)
+        ax3.imshow(self.reconstructedImage, cmap='Greys_r', interpolation='none')
+
+        error = self.reconstructedImage - self.extendedImage
         ax4 = plt.subplot(2, 2, 4)
-        ax4.imshow(self.reconstructedImage, cmap='Greys_r', interpolation='none')
+        ax4.imshow(error, cmap='Greys_r', interpolation='none')
+
+        self.countAccuracy()
 
         plt.show()
 
-        self.countAccuracy()
 
     def countAccuracy(self):
         for lineOriginal, lineReconstructed in zip(self.extendedImage, self.reconstructedImage):
