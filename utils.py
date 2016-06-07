@@ -1,4 +1,10 @@
 # -*- coding: utf-8 -*-
+import imageio
+
+
+def GIF_CreateFile(images, name='reconstruction.gif'):
+    imageio.mimsave(name, images)
+
 
 # _1 - początek, _2 - koniec
 def bresenham(x1, y1, x2, y2):

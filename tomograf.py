@@ -4,7 +4,10 @@ import math
 from skimage import data
 from skimage.color import rgb2gray
 from matplotlib import pyplot as plt
+import matplotlib.animation as animation
 import argparse
+import Image
+import subprocess
 
 import utils
 
@@ -16,6 +19,7 @@ class Tomograph:
         parser.add_argument('--points', '-p', default=100, type=int)
         parser.add_argument('--rays', '-r', default=100, type=int)
         parser.add_argument('--image', '-i', default='two_squares.png')
+        parser.add_argument('--GIF', action='store_true', default=False)
         args = parser.parse_args()
 
         self.deadangle = 0.4 * math.pi
@@ -29,6 +33,9 @@ class Tomograph:
         self.spectrum = np.zeros((self.npoints, self.nrays))
         self.reconstructedImage = []
         self.accuracy = 0.0
+        self.generate_GIF = args.GIF
+        if self.generate_GIF:
+            self.GIF_images = []
 
     def getLinePixels(self, angle, pointerino, ray):
         x2 = self.cirx + self.radius * math.cos(angle)
@@ -66,6 +73,10 @@ class Tomograph:
 
                     self.reconstructedImage[rows, cols] += sample
 
+            if self.generate_GIF:
+                if pointNumber % (self.npoints / 50) == 0 or pointNumber == self.npoints-1:
+                    self.GIF_images.append(np.copy(self.reconstructedImage))
+
         self.reconstructedImage = self.reconstructedImage / np.amax(self.reconstructedImage)
 
 
@@ -88,7 +99,7 @@ class Tomograph:
         ystart = (newheight-height) / 2
         yend = ystart + height
         self.extendedImage[ystart:yend, xstart:xend] = image
-        
+
         self.extendedImage = self.extendedImage / np.amax(self.extendedImage)
 
         ax1 = plt.subplot(2, 2, 1)
@@ -109,7 +120,7 @@ class Tomograph:
         ax1.plot(self.points[:, 1], self.points[:, 0], 'ro')
         ax1.plot(self.points[0, 1], self.points[0, 0], 'bs')
         ax1.plot(self.points[1, 1], self.points[1, 0], 'gs')
-        
+
         ax1.imshow(self.extendedImage, cmap='Greys_r', interpolation='none')
 
         # Skanowanie
@@ -139,6 +150,21 @@ class Tomograph:
         print(self.accuracy)
 
 
+    def generateGIF(self):
+        if self.generate_GIF:
+            fig = plt.figure()
+            ims = []
+            for img in self.GIF_images:
+                im = plt.imshow(img, cmap='Greys_r', animated=True)
+                ims.append([im])
+            ani = animation.ArtistAnimation(fig, ims, interval=100, blit=True, repeat_delay=1000)
+
+            plt.show()
+
+            utils.GIF_CreateFile(self.GIF_images)
+
+
 if __name__ == '__main__':
     tomograph = Tomograph()
     tomograph.simulate()
+    tomograph.generateGIF()
