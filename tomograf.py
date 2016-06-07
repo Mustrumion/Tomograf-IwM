@@ -48,13 +48,7 @@ class Tomograph:
                     weight = 1 / math.cos(angle%(math.pi/2))
 
                 self.spectrum[pointNumber, ray] = sum([self.extendedImage[i] for i in pixels]) * weight
-
-        maxp = self.spectrum.max(axis=1)
-        i = 0
-        if all(maxp > 0):
-            for pixel in np.nditer(self.spectrum, op_flags=['readwrite']):
-                pixel[...] = pixel / maxp[i]
-                i = (i+1) % self.nrays
+        self.spectrum = self.spectrum / np.amax(self.spectrum)
 
     def reconstruct(self):
         self.reconstructedImage = np.zeros(self.extendedImage.shape)
@@ -125,7 +119,7 @@ class Tomograph:
         ax3 = plt.subplot(2, 2, 3)
         ax3.imshow(self.reconstructedImage, cmap='Greys_r', interpolation='none')
 
-        error = self.reconstructedImage - self.extendedImage
+        error = abs(self.reconstructedImage - self.extendedImage)
         ax4 = plt.subplot(2, 2, 4)
         ax4.imshow(error, cmap='Greys_r', interpolation='none')
 
