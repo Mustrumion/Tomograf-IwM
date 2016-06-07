@@ -15,7 +15,7 @@ class Tomograph:
         parser = argparse.ArgumentParser()
         parser.add_argument('--points', '-p', default=100, type=int)
         parser.add_argument('--rays', '-r', default=100, type=int)
-        parser.add_argument('--image', '-i', default='image.bmp')
+        parser.add_argument('--image', '-i', default='two_squares.png')
         args = parser.parse_args()
 
         self.deadangle = 0.4 * math.pi
@@ -88,6 +88,8 @@ class Tomograph:
         ystart = (newheight-height) / 2
         yend = ystart + height
         self.extendedImage[ystart:yend, xstart:xend] = image
+        
+        self.extendedImage = self.extendedImage / np.amax(self.extendedImage)
 
         ax1 = plt.subplot(2, 2, 1)
         ax1.imshow(self.extendedImage, cmap='Greys_r', interpolation='none')
@@ -132,7 +134,6 @@ class Tomograph:
         for lineOriginal, lineReconstructed in zip(self.extendedImage, self.reconstructedImage):
             for pixelOriginal, pixelReconstructed in zip(lineOriginal, lineReconstructed):
                 self.accuracy += (pixelOriginal - pixelReconstructed) **2
-
         self.accuracy /= len(self.extendedImage)*len(self.extendedImage[0])
         print(self.accuracy)
 
