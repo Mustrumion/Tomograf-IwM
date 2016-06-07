@@ -92,7 +92,6 @@ class Tomograph:
         self.extendedImage = self.extendedImage / np.amax(self.extendedImage)
 
         ax1 = plt.subplot(2, 2, 1)
-        ax1.imshow(self.extendedImage, cmap='Greys_r', interpolation='none')
 
         # środek okręgu
         self.cirx = (newwidth-1) / 2
@@ -110,6 +109,8 @@ class Tomograph:
         ax1.plot(self.points[:, 1], self.points[:, 0], 'ro')
         ax1.plot(self.points[0, 1], self.points[0, 0], 'bs')
         ax1.plot(self.points[1, 1], self.points[1, 0], 'gs')
+        
+        ax1.imshow(self.extendedImage, cmap='Greys_r', interpolation='none')
 
         # Skanowanie
         self.scan()
