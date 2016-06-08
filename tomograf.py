@@ -100,7 +100,8 @@ class Tomograph:
 
         self.extendedImage = self.extendedImage / np.amax(self.extendedImage)
 
-        ax1 = plt.subplot(2, 2, 1)
+        fig = plt.figure()
+        ax1 = fig.add_subplot(2, 2, 1)
 
         # środek okręgu
         self.cirx = (newwidth-1) / 2
@@ -123,16 +124,27 @@ class Tomograph:
 
         # Skanowanie
         self.scan()
-        ax2 = plt.subplot(2, 2, 2)
+        ax2 = fig.add_subplot(2, 2, 2)
         ax2.imshow(self.spectrum, cmap='Greys_r', interpolation='none')
 
         # Rekonstrukcja
         self.reconstruct()
-        ax3 = plt.subplot(2, 2, 3)
-        ax3.imshow(self.reconstructedImage, cmap='Greys_r', interpolation='none')
+
+        ax3 = fig.add_subplot(2, 2, 3)
+
+        if self.generate_GIF: # wstaw animację
+            ims = []
+            for img in self.GIF_images:
+                im = ax3.imshow(img, cmap='Greys_r', animated=True)
+                ims.append([im])
+            ani = animation.ArtistAnimation(fig, ims, interval=100,
+                                            blit=True, repeat_delay=2000)
+            utils.GIF_CreateFile(self.GIF_images)
+        else: # wstaw tylko końcowy rezultat
+            ax3.imshow(self.reconstructedImage, cmap='Greys_r', interpolation='none')
 
         error = abs(self.reconstructedImage - self.extendedImage)
-        ax4 = plt.subplot(2, 2, 4)
+        ax4 = fig.add_subplot(2, 2, 4)
         ax4.imshow(error, cmap='Greys_r', interpolation='none')
 
         self.countAccuracy()
@@ -148,21 +160,7 @@ class Tomograph:
         print(self.accuracy)
 
 
-    def generateGIF(self):
-        if self.generate_GIF:
-            fig = plt.figure()
-            ims = []
-            for img in self.GIF_images:
-                im = plt.imshow(img, cmap='Greys_r', animated=True)
-                ims.append([im])
-            ani = animation.ArtistAnimation(fig, ims, interval=100, blit=True, repeat_delay=1000)
-
-            plt.show()
-
-            utils.GIF_CreateFile(self.GIF_images)
-
 
 if __name__ == '__main__':
     tomograph = Tomograph()
     tomograph.simulate()
-    tomograph.generateGIF()
