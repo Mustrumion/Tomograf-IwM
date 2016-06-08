@@ -56,10 +56,11 @@ class Tomograph:
                 pixels = self.getLinePixels(angle, pointerino, ray)
 
                 weight = 0.0
-                if math.sin(angle%(math.pi/2)) > math.cos(angle%(math.pi/2)):
-                    weight = 1 / math.sin(angle%(math.pi/2))
+                newangle = pointerino[2] + self.deadangle + ((2*math.pi - 2*self.deadangle) * float(ray/2)/self.nrays) - 0.5 * self.deadangle
+                if math.sin(newangle%(math.pi/2)) > math.cos(newangle%(math.pi/2)):
+                    weight = 1 / math.sin(newangle%(math.pi/2))
                 else:
-                    weight = 1 / math.cos(angle%(math.pi/2))
+                    weight = 1 / math.cos(newangle%(math.pi/2))
 
                 self.spectrum[pointNumber, ray] = sum([self.extendedImage[i] for i in pixels]) * weight
         self.spectrum = self.spectrum / np.amax(self.spectrum)
