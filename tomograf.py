@@ -20,7 +20,7 @@ class Tomograph:
         parser.add_argument('--image', '-i', default='two_squares.png')
         parser.add_argument('--GIF', action='store_true', default=False)
         parser.add_argument('--compare', '-c', action='store_true', default=False)
-        parser.add_argument('--name', '-n', default='1')
+        parser.add_argument('--name', '-n', default='')
         args = parser.parse_args()
 
         self.deadangle = 0.4 * math.pi
