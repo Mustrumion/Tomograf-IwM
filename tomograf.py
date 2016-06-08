@@ -147,12 +147,12 @@ class Tomograph:
         ax4 = fig.add_subplot(2, 2, 4)
         ax4.imshow(error, cmap='Greys_r', interpolation='none')
 
-        self.countAccuracy()
+        self.computeAccuracy()
 
         plt.show()
 
 
-    def countAccuracy(self):
+    def computeAccuracy(self):
         for lineOriginal, lineReconstructed in zip(self.extendedImage, self.reconstructedImage):
             for pixelOriginal, pixelReconstructed in zip(lineOriginal, lineReconstructed):
                 self.accuracy += (pixelOriginal - pixelReconstructed) **2
