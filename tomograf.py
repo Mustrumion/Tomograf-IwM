@@ -6,6 +6,7 @@ from skimage.color import rgb2gray
 from matplotlib import pyplot as plt
 import matplotlib.animation as animation
 import argparse
+import os.path
 
 import utils
 
@@ -18,9 +19,12 @@ class Tomograph:
         parser.add_argument('--rays', '-r', default=100, type=int)
         parser.add_argument('--image', '-i', default='two_squares.png')
         parser.add_argument('--GIF', action='store_true', default=False)
+        parser.add_argument('--compare', '-c', action='store_true', default=False)
+        parser.add_argument('--name', '-n', default='1')
         args = parser.parse_args()
 
         self.deadangle = 0.4 * math.pi
+        self.name = args.name
         self.npoints = args.points
         self.points = np.zeros((self.npoints, 3)) #x, y, kąt stycznej do osi X+
         self.nrays = args.rays
@@ -32,6 +36,8 @@ class Tomograph:
         self.reconstructedImage = []
         self.accuracy = 0.0
         self.generate_GIF = args.GIF
+        self.storeResults = len(self.name)>0
+        self.showComp = args.compare
         if self.generate_GIF:
             self.GIF_images = []
 
@@ -91,12 +97,12 @@ class Tomograph:
             newheight += 1
 
         #tworzenie nowego obrazu i kopiowanie starego do środka
-        self.extendedImage = np.zeros((newheight, newwidth))
+        self.extendedImage = np.zeros(((int)(newheight), (int)(newwidth)))
         xstart = (newwidth-width) / 2
         xend = xstart + width
         ystart = (newheight-height) / 2
         yend = ystart + height
-        self.extendedImage[ystart:yend, xstart:xend] = image
+        self.extendedImage[(int)(ystart):(int)(yend), (int)(xstart):(int)(xend)] = image
 
         self.extendedImage = self.extendedImage / np.amax(self.extendedImage)
 
@@ -146,9 +152,10 @@ class Tomograph:
         error = abs(self.reconstructedImage - self.extendedImage)
         ax4 = fig.add_subplot(2, 2, 4)
         ax4.imshow(error, cmap='Greys_r', interpolation='none')
-
+        
         self.computeAccuracy()
-
+        if self.showComp: 
+            self.showComparasion()
         plt.show()
 
 
@@ -157,9 +164,32 @@ class Tomograph:
             for pixelOriginal, pixelReconstructed in zip(lineOriginal, lineReconstructed):
                 self.accuracy += (pixelOriginal - pixelReconstructed) **2
         self.accuracy /= len(self.extendedImage)*len(self.extendedImage[0])
-        print(self.accuracy)
+        print("Srednie odchylenie kwadratowe: " + (str)(self.accuracy))
+        if self.storeResults:
+            with open(self.filename+".txt", "a+") as myfile:
+                myfile.write(self.name +"|" + (str)(self.accuracy)+"\n")
 
+    def showComparasion(self):
+        if os.path.exists(self.filename+".txt"):
+            xLabels=[]
+            yData=[]
+            with open(self.filename+".txt") as myfile:
+                lines = myfile.readlines()
+                for line in lines:
+                    linesplit = line.split("|")
+                    xLabels.append(linesplit[0])
+                    yData.append(float(linesplit[1]))
+                
+            fig, ax = plt.subplots()
+            plt.xticks(rotation=30)
+            ax.bar(np.arange(len(yData[-5:])), yData[-5:], color='b')
+            ax.set_xticklabels(xLabels[-5:])
+            ax.set_xlabel('Measure name')
+            ax.set_ylabel('Deviation')
+            ax.set_title('Deviation from starting image of last 5 simulations')
+            plt.show()
 
+        
 
 if __name__ == '__main__':
     tomograph = Tomograph()
