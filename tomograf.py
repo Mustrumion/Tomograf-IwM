@@ -2,6 +2,7 @@
 import numpy as np
 import math
 from skimage import data
+from skimage.transform import radon, iradon
 from skimage.color import rgb2gray
 from matplotlib import pyplot as plt
 import matplotlib.animation as animation
@@ -20,6 +21,7 @@ class Tomograph:
         parser.add_argument('--image', '-i', default='two_squares.png')
         parser.add_argument('--GIF', action='store_true', default=False)
         parser.add_argument('--compare', '-c', action='store_true', default=False)
+        parser.add_argument('--alternative', '-a', action='store_true', default=False)
         parser.add_argument('--name', '-n', default='')
         args = parser.parse_args()
 
@@ -36,6 +38,7 @@ class Tomograph:
         self.reconstructedImage = []
         self.accuracy = 0.0
         self.generate_GIF = args.GIF
+        self.radon = args.alternative
         self.storeResults = len(self.name)>0
         self.showComp = args.compare
         if self.generate_GIF:
@@ -60,7 +63,16 @@ class Tomograph:
 
                 self.spectrum[pointNumber, ray] = sum([self.extendedImage[i] for i in pixels]) * weight
         self.spectrum = self.spectrum / np.amax(self.spectrum)
-
+    
+    def scanRad(self):
+        self.theta = np.linspace(0., 180., max(self.extendedImage.shape), endpoint=False)
+        self.spectrum = radon(self.extendedImage, theta=self.theta, circle=True).T
+        
+    def reconstructRad(self):
+        self.reconstructedImage = abs(iradon(self.spectrum.T, theta=self.theta, circle=True))
+        self.reconstructedImage = self.reconstructedImage - np.amin(self.reconstructedImage)
+        self.reconstructedImage = self.reconstructedImage / np.amax(self.reconstructedImage)
+    
     def reconstruct(self):
         self.reconstructedImage = np.zeros(self.extendedImage.shape)
 
@@ -129,12 +141,14 @@ class Tomograph:
         ax1.imshow(self.extendedImage, cmap='Greys_r', interpolation='none')
 
         # Skanowanie
-        self.scan()
+        if self.radon: self.scanRad()
+        else: self.scan()
         ax2 = fig.add_subplot(2, 2, 2)
         ax2.imshow(self.spectrum, cmap='Greys_r', interpolation='none')
 
         # Rekonstrukcja
-        self.reconstruct()
+        if self.radon: self.reconstructRad()
+        else: self.reconstruct()
 
         ax3 = fig.add_subplot(2, 2, 3)
 
@@ -148,7 +162,6 @@ class Tomograph:
             utils.GIF_CreateFile(self.GIF_images)
         else: # wstaw tylko końcowy rezultat
             ax3.imshow(self.reconstructedImage, cmap='Greys_r', interpolation='none')
-
         error = abs(self.reconstructedImage - self.extendedImage)
         ax4 = fig.add_subplot(2, 2, 4)
         ax4.imshow(error, cmap='Greys_r', interpolation='none')
