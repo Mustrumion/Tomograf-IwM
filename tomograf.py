@@ -152,10 +152,10 @@ class Tomograph:
         error = abs(self.reconstructedImage - self.extendedImage)
         ax4 = fig.add_subplot(2, 2, 4)
         ax4.imshow(error, cmap='Greys_r', interpolation='none')
-        
+
         self.computeAccuracy()
-        if self.showComp: 
-            self.showComparasion()
+        if self.showComp:
+            self.showComparison()
         plt.show()
 
 
@@ -169,7 +169,7 @@ class Tomograph:
             with open(self.filename+".txt", "a+") as myfile:
                 myfile.write(self.name +"|" + (str)(self.accuracy)+"\n")
 
-    def showComparasion(self):
+    def showComparison(self):
         if os.path.exists(self.filename+".txt"):
             xLabels=[]
             yData=[]
@@ -179,7 +179,7 @@ class Tomograph:
                     linesplit = line.split("|")
                     xLabels.append(linesplit[0])
                     yData.append(float(linesplit[1]))
-                
+
             fig, ax = plt.subplots()
             plt.xticks(rotation=30)
             ax.bar(np.arange(len(yData[-5:])), yData[-5:], color='b')
@@ -189,7 +189,7 @@ class Tomograph:
             ax.set_title('Deviation from starting image of last 5 simulations')
             plt.show()
 
-        
+
 
 if __name__ == '__main__':
     tomograph = Tomograph()
