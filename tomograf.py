@@ -6,8 +6,6 @@ from skimage.color import rgb2gray
 from matplotlib import pyplot as plt
 import matplotlib.animation as animation
 import argparse
-import Image
-import subprocess
 
 import utils
 
